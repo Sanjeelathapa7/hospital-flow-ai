@@ -4,6 +4,14 @@ __pycache__/
 .env
 .DS_Store
 data/
+# SQLite database files
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
 models/
 .ipynb_checkpoints/.DS_Store
 outputs/
+

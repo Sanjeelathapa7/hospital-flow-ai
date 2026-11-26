@@ -60,13 +60,11 @@ def test_graph_contains_all_agents():
     [
 
         ("normal", 3, 0),
-
         ("bed_shortage", 2, 3),
-
         ("icu_crisis", 1, 4)
+
     ]
 )
-
 def test_complete_workflow(
     scenario_name,
     expected_approvals,
@@ -82,6 +80,7 @@ def test_complete_workflow(
         "configurable": {
 
             "thread_id": str(uuid4())
+
         }
     }
 
@@ -116,6 +115,7 @@ def test_complete_workflow(
             "reviewer": "Test Reviewer",
 
             "reason": "Workflow integration test."
+
         }
 
         for request in paused_state[
@@ -128,6 +128,7 @@ def test_complete_workflow(
         Command(resume=decisions),
 
         config=config
+
     )
 
     final_state = (
@@ -155,6 +156,7 @@ def test_complete_workflow(
         final_state["audit_log"]
     ) == expected_approvals
 
+    # UPDATED: Include persistence node
     assert final_state["workflow_trace"] == [
 
         "environment",
@@ -164,7 +166,9 @@ def test_complete_workflow(
         "coordination",
         "human_review",
         "apply_decisions",
-        "finalise"
+        "finalise",
+        "persistence"
+
     ]
 
 
@@ -179,12 +183,16 @@ def test_workflow_rejection():
         "configurable": {
 
             "thread_id": str(uuid4())
+
         }
     }
 
     workflow.invoke(
+
         state,
+
         config=config
+
     )
 
     paused_state = (
@@ -203,6 +211,7 @@ def test_workflow_rejection():
             "reviewer": "Test Reviewer",
 
             "reason": "Rejection scenario test."
+
         }
 
         for request in paused_state[
@@ -215,6 +224,7 @@ def test_workflow_rejection():
         Command(resume=decisions),
 
         config=config
+
     )
 
     final_state = (
@@ -251,12 +261,16 @@ def test_workflow_without_compatible_beds():
         "configurable": {
 
             "thread_id": str(uuid4())
+
         }
     }
 
     result = workflow.invoke(
+
         state,
+
         config=config
+
     )
 
     assert not result.get("__interrupt__")

@@ -3,7 +3,7 @@
 # LangGraph Multi-Agent Orchestration
 
 from copy import deepcopy
-
+from database.repository import HospitalRepository
 import pandas as pd
 
 from langgraph.graph import (
@@ -227,9 +227,15 @@ def route_after_coordination(state):
 
 def human_review_node(state):
 
-    # LangGraph pauses execution here.
-    # The workflow resumes only when decisions
-    # are supplied using Command(resume=...).
+    state = deepcopy(state)
+
+    state["workflow_status"] = (
+        "Awaiting Human Approval"
+    )
+
+    repository = HospitalRepository()
+
+    repository.save_state(state)
 
     decisions = interrupt({
 
@@ -246,12 +252,14 @@ def human_review_node(state):
             state["alerts"]
     })
 
-    state = deepcopy(state)
-
     state["human_decisions"] = decisions
 
-    return trace(state, "human_review")
+    state["workflow_status"] = "Running"
 
+    return trace(
+        state,
+        "human_review"
+    )
 
 # ==========================================
 # 9. Apply human decisions
@@ -389,6 +397,20 @@ def finalise_node(state):
 
     return trace(state, "finalise")
 
+def persistence_node(state):
+
+    state = deepcopy(state)
+
+    repository = HospitalRepository()
+
+    state = trace(
+        state,
+        "persistence"
+    )
+
+    repository.save_state(state)
+
+    return state
 
 # ==========================================
 # 11. Build LangGraph
@@ -398,6 +420,7 @@ def build_workflow(checkpointer=None):
 
     builder = StateGraph(HospitalState)
 
+    # Register workflow nodes
     builder.add_node(
         "environment",
         environment_node
@@ -438,6 +461,13 @@ def build_workflow(checkpointer=None):
         finalise_node
     )
 
+    # NEW: Register persistence node
+    builder.add_node(
+        "persistence",
+        persistence_node
+    )
+
+    # Connect workflow nodes
     builder.add_edge(
         START, "environment"
     )
@@ -458,12 +488,10 @@ def build_workflow(checkpointer=None):
         "allocation", "coordination"
     )
 
+    # Conditional human approval routing
     builder.add_conditional_edges(
-
         "coordination",
-
         route_after_coordination,
-
         {
             "human_review": "human_review",
             "finalise": "finalise"
@@ -478,10 +506,16 @@ def build_workflow(checkpointer=None):
         "apply_decisions", "finalise"
     )
 
+    # NEW: Save final state before ending
     builder.add_edge(
-        "finalise", END
+        "finalise", "persistence"
     )
 
+    builder.add_edge(
+        "persistence", END
+    )
+
+    # Initialise checkpointer
     if checkpointer is None:
 
         checkpointer = InMemorySaver()
