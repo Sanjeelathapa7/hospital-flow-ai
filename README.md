@@ -1,10 +1,6 @@
 # HospitalFlow AI
 
 ## Multi-Agent Hospital Patient Flow and Bed Management System
-
-**Module:** CN7050 – Intelligent Systems  
-**Programme:** MSc Artificial Intelligence  
-**University:** University of East London  
 **Project Status:** Under Development
 
 ## Project Overview
