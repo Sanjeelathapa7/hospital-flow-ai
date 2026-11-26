@@ -20,7 +20,9 @@ from dashboard.styles import (
 
     render_header
 )
-
+from dashboard.system_evaluation import (
+    system_evaluation_page
+)
 from dashboard.views import (
 
     overview_page,
@@ -133,7 +135,9 @@ with st.sidebar:
 
             "Database & Audit",
 
-            "Model Evaluation"
+"Model Evaluation",
+
+"System Evaluation"
         ],
 
         label_visibility="collapsed"
@@ -238,6 +242,10 @@ elif page == "Database & Audit":
 elif page == "Model Evaluation":
 
     model_evaluation_page()
+
+elif page == "System Evaluation":
+
+    system_evaluation_page()
 
 elif not state:
 
