@@ -38,6 +38,9 @@ class HospitalState(TypedDict, total=False):
     approved_allocations: list[dict[str, Any]]
     rejected_allocations: list[dict[str, Any]]
 
+    # NEW: Human approval requests
+    approval_requests: list[dict[str, Any]]
+
     # System evaluation
     metrics: dict[str, Any]
 
@@ -45,6 +48,9 @@ class HospitalState(TypedDict, total=False):
     agent_messages: list[dict[str, Any]]
     completed_agents: list[str]
     errors: list[str]
+
+    # NEW: System audit log
+    audit_log: list[dict[str, Any]]
 
 
 def create_initial_state(
@@ -79,9 +85,16 @@ def create_initial_state(
         approved_allocations=[],
         rejected_allocations=[],
 
+        # NEW: Initialise approval requests
+        approval_requests=[],
+
         metrics={},
 
         agent_messages=[],
         completed_agents=[],
-        errors=[]
+        errors=[],
+
+        # NEW: Initialise audit log
+        audit_log=[]
+
     )

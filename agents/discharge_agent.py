@@ -177,15 +177,14 @@ class DischargePredictionAgent:
         )
 
         patient["admission_day_of_week"] = (
-            admission.dayofweek
-        )
+admission.day_of_week        )
 
         patient["admission_month"] = (
             admission.month
         )
 
         patient["is_weekend"] = int(
-            admission.dayofweek >= 5
+            admission.day_of_week >= 5
         )
 
         missing_features = [
